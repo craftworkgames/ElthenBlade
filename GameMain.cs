@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Sprites;
+using MonoGame.Extended.TextureAtlases;
 
 namespace ElthenBlade
 {
@@ -46,7 +47,7 @@ namespace ElthenBlade
 
             _player = new GameObject
             {
-                Sprite = new Sprite(_adventurer),
+                Sprite = new Sprite(new TextureRegion2D(_adventurer, 0, 0, 32, 32)),
                 Position = new Vector2(120, 200),
                 Speed = 128
             };
