@@ -2,17 +2,23 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.Content;
+using MonoGame.Extended.Serialization;
 using MonoGame.Extended.Sprites;
-using MonoGame.Extended.TextureAtlases;
 
 namespace ElthenBlade
 {
     public class GameObject
     {
         public Vector2 Position { get; set; }
-        public Sprite Sprite { get; set; }
+        public AnimatedSprite Sprite { get; set; }
         public float Speed { get; set; }
         public Vector2 Offset => Sprite.Origin;
+
+        public void Update(float deltaSeconds)
+        {
+            Sprite.Update(deltaSeconds);
+        }
     }
 
     public class GameMain : Game
@@ -23,7 +29,6 @@ namespace ElthenBlade
         private OrthographicCamera _camera;
 
         private Texture2D _background;
-        private Texture2D _adventurer;
         private GameObject _player;
 
         public GameMain()
@@ -39,17 +44,19 @@ namespace ElthenBlade
         protected override void LoadContent()
         {
             _background = Content.Load<Texture2D>("background");
-            _adventurer = Content.Load<Texture2D>("adventurer");
-
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _camera = new OrthographicCamera(GraphicsDevice) { Zoom = 2.0f };
+            var spriteSheet = Content.Load<SpriteSheet>("adventurer.sf", new JsonContentLoader());
+            var sprite = new AnimatedSprite(spriteSheet);
+            sprite.Play("idle");
+
+            _camera = new OrthographicCamera(GraphicsDevice) { Zoom = 4.0f };
 
             _player = new GameObject
             {
-                Sprite = new Sprite(new TextureRegion2D(_adventurer, 0, 0, 32, 32)),
+                Sprite = sprite,
                 Position = new Vector2(120, 200),
-                Speed = 128
+                Speed = 90
             };
         }
 
@@ -66,12 +73,14 @@ namespace ElthenBlade
             {
                 direction.X -= 1;
                 _player.Sprite.Effect = SpriteEffects.FlipHorizontally;
+                _player.Sprite.Play("walk");
             }
 
             if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
             {
                 direction.X += 1;
                 _player.Sprite.Effect = SpriteEffects.None;
+                _player.Sprite.Play("walk");
             }
 
             if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
@@ -91,7 +100,9 @@ namespace ElthenBlade
 
             var lookAtPosition = Vector2.Lerp(_camera.Position + _camera.Origin, _player.Position, 0.05f);
             _camera.LookAt(lookAtPosition);
-            
+
+            _player.Update(elapsedSeconds);
+
             base.Update(gameTime);
         }
 

@@ -25,6 +25,9 @@
 /processorParam:TextureFormat=Color
 /build:adventurer.png
 
+#begin adventurer.sf
+/copy:adventurer.sf
+
 #begin background.png
 /importer:TextureImporter
 /processor:TextureProcessor
